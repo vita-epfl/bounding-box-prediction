@@ -15,10 +15,10 @@ complex architectures
 ## Contents
 ------------
   * [Requirements](#requirements)
-  * [Project Structure](#requirements)
-  * [Proposed method](#brief-project-structure)
+  * [Repository Structure](#repository-structure)
+  * [Proposed Method](#proposed-method)
   * [Results](#results)
-  * [Setup](#Setup)
+  * [Setup](#setup)
   
 ## Requirements:
 ------------
@@ -29,7 +29,7 @@ complex architectures
   * Scikit-Learn
   * Pillow
   
-## Project structure:
+## Repository structure:
 ------------
 
     ├── bounding-box-prediction         : Project repository
