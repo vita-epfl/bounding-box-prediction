@@ -46,4 +46,4 @@ complex architectures
            
  ## Proposed method
  
-![Our proposed multitask Position-Speed-LSTM (PS-LSTM) architecture](docs/coco/000000081988.jpg.skeleton.png)
+![Our proposed multitask Position-Speed-LSTM (PS-LSTM) architecture](Images/network.PNG)
