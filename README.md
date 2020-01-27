@@ -18,8 +18,7 @@ complex architectures
   * [Project Structure](#requirements)
   * [Proposed method](#brief-project-structure)
   * [Results](#results)
-  * [Train](#train)
-  * [Test](#test)
+  * [Setup](#Setup)
   
 ## Requirements:
 ------------
@@ -44,6 +43,37 @@ complex architectures
             ├── utils.py                : Script containing necessary math and transformation functions.
             ├── Jupyter_notebooks       : Folder containing a group of notebooks corresponding to the performed experiments.
            
+           
  ## Proposed method
+ -------------
  
 ![Our proposed multitask Position-Speed-LSTM (PS-LSTM) architecture](Images/network.PNG)
+
+
+## Results
+--------------
+
+![Example of output 1](Images/vis1.png)
+![Example of output 1](Images/vis2.png)
+![Example of output 1](Images/vis3.png)
+
+## Setup
+-------------
+* Create anaconda environment and install the required libraries
+```
+conda create -n env python=3.6 anaconda
+conda activate env
+conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+pip install opencv-python
+pip install scikit-learn
+pip install pillow
+```
+Download the github repository
+```
+git clone https://github.com/vita-epfl/bounding-box-prediction.git
+cd bounding-box-prediction
+```
+* Download the JAAD clips (UNRESIZED) and unzip them in the `videos` folder.
+* Run the script `split_clips_to_frames.sh` to convert the JAAD videos into frames. Each frame will be placed in a folder under the `scene` folder. Note that this takes 169G of space.
+* Download and unzip the JAAD annotation files into the `annotations` folder.
+* Since there isn't yet a command line interface parser, you need to open the file you want to run and modify the args class in order to specify the relevant paths and hyperparameters.
