@@ -32,17 +32,11 @@ complex architectures
 ## Repository structure:
 ------------
 
-    ├── bounding-box-prediction         : Project repository
-        ├── openpifpaf      
-            ├── models.py               : Script of all the relevant models designed during the project.              
-            ├── datasets.py             : Script containing the dataset implementation of JAAD as well as the data loader. 
-            ├── trainer.py              : Script containing the training and testing steps of the model.
-            ├── train.py                : Script to train the model on the JAAD dataset.
-            ├── predict.py              : Script to perform predictions on new data.
-            ├── show.py                 : Script containing visualization functions for the predictions
+    ├── bounding-box-prediction         : Project repository    
+            ├── Multi-Task-PV-LSTM.py   : Script for training and testing PV-LSTM.              
+            ├── DataLoader.py           : Script for data pre-processing and loader. 
+            ├── networks.py             : Script containing the implementation of the network.
             ├── utils.py                : Script containing necessary math and transformation functions.
-            ├── Jupyter_notebooks       : Folder containing a group of notebooks corresponding to the performed experiments.
-           
            
  ## Proposed method
  -------------
