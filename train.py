@@ -12,7 +12,7 @@ import numpy as np
 from sklearn.metrics import recall_score, accuracy_score, average_precision_score, precision_score
 
 import DataLoader
-import networks
+import network
 import utils
 
 class args():
@@ -44,7 +44,7 @@ class args():
         
 args = args()
 
-net = networks.PV_LSTM(args).to(args.device)
+net = network.PV_LSTM(args).to(args.device)
 train, val = DataLoader.data_loader(args)
 
 optimizer = optim.Adam(net.parameters(), lr=args.lr)
