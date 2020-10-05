@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 class myJAAD(torch.utils.data.Dataset):
     def __init__(self, args):
-        print('*'*30)
+        
         if(args.from_file):
             sequence_centric = pd.read_csv(args.file)
             df = sequence_centric.copy()      
@@ -132,7 +132,7 @@ class myJAAD(torch.utils.data.Dataset):
         self.args = args
         self.dtype = args.dtype
         print(self.dtype, " set loaded")
-        
+        print('*'*30)
         
 
     def __len__(self):
@@ -187,10 +187,7 @@ class myJAAD(torch.utils.data.Dataset):
         
         return tuple(outputs)
 
-    def scene_transforms(self, scene):
-        # transform scene
-        # resize to the "standard resolution" before cropping
-        
+    def scene_transforms(self, scene):  
         #scene = TF.resize(scene, size=(self.args.image_resize[0], self.args.image_resize[1]))
         scene = TF.to_tensor(scene)
         
@@ -199,27 +196,32 @@ class myJAAD(torch.utils.data.Dataset):
     
     
 def data_loader(args):
-    train_set = myJAAD(args)
-    train_loader = torch.utils.data.DataLoader(
-        train_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-        pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+    if args.dtype == 'train':
+        train_set = myJAAD(args)
+        train_loader = torch.utils.data.DataLoader(
+            train_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
+            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+
+        args.trainOrVal = 'val'
+
+        val_set = myJAAD(args)
+        val_loader = torch.utils.data.DataLoader(
+            val_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
+            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+        
+        return train_loader, val_loader
     
-    args.trainOrVal = 'val'
+    elif args.dtype == 'val':
     
-    val_set = myJAAD(args)
-    val_loader = torch.utils.data.DataLoader(
-        val_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-        pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+        #rgs.file = args.val_file
+        #rgs.dtype = 'val'
+        #rgs.trainOrVal = 'test'
+        #rgs.sample = False
     
-    args.file = args.val_file
-    args.dtype = 'val'
-    args.trainOrVal = 'test'
-    args.sample = False
-    
-    test_set = myJAAD(args)
-    
-    test_loader = torch.utils.data.DataLoader(
-        test_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-        pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
-    
-    return train_loader, val_loader, test_loader
+        test_set = myJAAD(args)
+
+        test_loader = torch.utils.data.DataLoader(
+            test_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
+            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+
+        return test_loader
