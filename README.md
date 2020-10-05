@@ -32,9 +32,7 @@ This is the official code for the paper "Pedestrian Intention Forecasting: A Fut
 
 ## Results
 --------------
-![Example of output 1](Images/vis1.png)
-![Example of output 1](Images/vis2.png)
-![Example of output 1](Images/vis3.png)
+![Example of outputs](Images/visualizations.png)
   
 ## Installation:
 ------------
