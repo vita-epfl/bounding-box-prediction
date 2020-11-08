@@ -19,9 +19,10 @@ class args():
     def __init__(self):
         self.jaad_dataset = '../../../../data/haziq-data/jaad/annotations' #folder containing parsed jaad annotations (used when first time loading data)
         self.dtype        = 'train'
-        self.from_file    = True #read dataset from csv file or reprocess data
-        self.file         = '/data/smail-data/jaad_train_16_16_n.csv'
-        self.save_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
+        self.from_file    = False #read dataset from csv file or reprocess data
+        self.file         = '/data/smail-data/jaad_val_16_16.csv'
+        self.save_path    = '/data/smail-data/jaad_val_16_16.csv'
+        self.model_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
         self.loader_workers = 10
         self.loader_shuffle = True
         self.pin_memory     = False
@@ -190,5 +191,5 @@ plt.legend()
 plt.show()
 print('='*100) 
 print('Saving ...')
-torch.save(net.state_dict(), args.save_path)
+torch.save(net.state_dict(), args.model_path)
 print('Done !')
