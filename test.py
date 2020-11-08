@@ -18,11 +18,12 @@ import utils
 
 class args():
     def __init__(self):
-        self.jaad_dataset = '../../../../data/haziq-data/jaad/annotations' #folder containing parsed jaad annotations (used when first time loading data)
+        self.jaad_dataset = '/data/haziq-data/jaad/annotations' #folder containing parsed jaad annotations (used when first time loading data)
         self.dtype        = 'val'
-        self.from_file    = True #read dataset from csv file or reprocess data
-        self.file         = '/data/smail-data/jaad_val_16_16_n.csv'
-        self.save_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
+        self.from_file    = False #read dataset from csv file or reprocess data
+        self.file         = '/data/smail-data/jaad_val_16_16.csv'
+        self.save_path    = '/data/smail-data/jaad_val_16_16.csv'
+        self.model_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
         self.loader_workers = 10
         self.loader_shuffle = True
         self.pin_memory     = False
@@ -47,7 +48,7 @@ args = args()
 
 
 net = network.PV_LSTM(args).to(args.device)
-net.load_state_dict(torch.load(args.save_path))
+net.load_state_dict(torch.load(args.model_path))
 net.eval()
 test = DataLoader.data_loader(args)
 
