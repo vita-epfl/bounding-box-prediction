@@ -10,7 +10,6 @@ from PIL import Image, ImageDraw
 import cv2
 import matplotlib.pyplot as plt
 import time
-import import_ipynb
 import utils
 import matplotlib.pyplot as plt
 
