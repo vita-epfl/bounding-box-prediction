@@ -132,7 +132,7 @@ avg_pre = precision_score(state_targets, state_preds, average='binary', zero_div
 intent_acc = accuracy_score(intent_targets, intent_preds)
 
 print('vs: %.4f'% avg_epoch_val_s_loss, '| vc: %.4f'% avg_epoch_val_c_loss, '| ade: %.4f'% ade, 
-      '| fde: %.4f'% fde, '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, '| acc: %.4f'% avg_acc, 
-      '| rec: %.4f'% avg_rec, '| pre: %.4f'% avg_pre, '| int_acc: %.4f'% intent_acc, 
+      '| fde: %.4f'% fde, '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, '| state_acc: %.4f'% avg_acc, 
+      '| int_acc: %.4f'% intent_acc, 
       '| t:%.4f'%(time.time()-start))
 

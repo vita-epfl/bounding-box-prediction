@@ -177,7 +177,7 @@ for epoch in range(args.n_epochs):
     print('e:', epoch, '| ts: %.4f'% avg_epoch_train_s_loss, '| tc: %.4f'% avg_epoch_train_c_loss, 
           '| vs: %.4f'% avg_epoch_val_s_loss, '| vc: %.4f'% avg_epoch_val_c_loss, '| ade: %.4f'% ade, 
           '| fde: %.4f'% fde, '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, '| state_acc: %.4f'% avg_acc, 
-          '| rec: %.4f'% avg_rec, '| pre: %.4f'% avg_pre, '| intention_acc: %.4f'% intent_acc, 
+          '| intention_acc: %.4f'% intent_acc, 
           '| t:%.4f'%(time.time()-start))
 
 print('='*100) 
