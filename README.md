@@ -18,7 +18,8 @@ This is the official code for the paper "Pedestrian Intention Forecasting: A Fut
   
 ## Repository structure:
 ------------
-    ├── bounding-box-prediction         : Project repository    
+    ├── bounding-box-prediction         : Project repository
+            ├── prepare_data.py         : Script for processing raw JAAD data.
             ├── train.py                : Script for training PV-LSTM.  
             ├── test.py                 : Script for testing PV-LSTM.  
             ├── DataLoader.py           : Script for data pre-processing and loader. 
@@ -52,9 +53,18 @@ pip install -r requirements.txt
 ```
 
 ## Dataset:
+  
+  * Clone the dataset's [repository](https://github.com/ykotseruba/JAAD).
+  ```
+  git clone https://github.com/ykotseruba/JAAD
+  ```
+  * Run the `prepare_data.py` script, make sure you provide the path to the JAAD repository and the train/val/test ratios (ratios must be in [0,1] and their sum should equal 1.
+  ```
+  python3 prepare_data.py |path/to/JAAD/repo| |train_ratio| |val_ratio| |test_ratio|
+  ```
   * Download the [JAAD clips](http://data.nvision2.eecs.yorku.ca/JAAD_dataset/) (UNRESIZED) and unzip them in the `videos` folder.
-  * Clone the dataset's [repository](https://github.com/ykotseruba/JAAD)
   * Run the script `split_clips_to_frames.sh` to convert the JAAD videos into frames. Each frame will be placed in a folder under the `scene` folder. Note that this takes 169G of space.
+  
   
 ## Training/Testing:
 Open `train.py` and `test.py` and change the parameters in the args class depending on the paths of your files.
