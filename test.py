@@ -7,7 +7,6 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
     
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import recall_score, accuracy_score, average_precision_score, precision_score
 
@@ -18,12 +17,13 @@ import utils
 
 class args():
     def __init__(self):
-        self.jaad_dataset = '/data/haziq-data/jaad/annotations' #folder containing parsed jaad annotations (used when first time loading data)
-        self.dtype        = 'val'
+        self.jaad_dataset = '/data/smailait-data/JAAD/processed_annotations' #folder containing parsed jaad annotations (used when first time loading data)
+        self.dtype        = 'test'
         self.from_file    = False #read dataset from csv file or reprocess data
-        self.file         = '/data/smail-data/jaad_val_16_16.csv'
-        self.save_path    = '/data/smail-data/jaad_val_16_16.csv'
-        self.model_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
+        self.save         = True
+        self.file         = '/data/smailait-data/jaad_test_16_16.csv'
+        self.save_path    = '/data/smailait-data/jaad_test_16_16.csv'
+        self.model_path    = '/data/smailait-data/models/multitask_pv_lstm_trained.pkl'
         self.loader_workers = 10
         self.loader_shuffle = True
         self.pin_memory     = False
@@ -33,12 +33,9 @@ class args():
         self.n_epochs       = 100
         self.hidden_size    = 512
         self.hardtanh_limit = 100
-        self.sample         = False
-        self.n_train_sequences = 40000
-        self.trainOrVal = 'test'
-        self.citywalks  = False
         self.input  = 16
         self.output = 16
+        self.stride = 16
         self.skip   = 1
         self.task   = 'bounding_box-intention'
         self.use_scenes = False       

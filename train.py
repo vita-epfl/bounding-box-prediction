@@ -6,8 +6,7 @@ import torch.optim as optim
 
 import torchvision
 import torchvision.transforms as transforms
-    
-import matplotlib.pyplot as plt
+
 import numpy as np
 from sklearn.metrics import recall_score, accuracy_score, average_precision_score, precision_score
 
@@ -17,12 +16,13 @@ import utils
 
 class args():
     def __init__(self):
-        self.jaad_dataset = '../../../../data/haziq-data/jaad/annotations' #folder containing parsed jaad annotations (used when first time loading data)
+        self.jaad_dataset = '/data/smailait-data/JAAD/processed_annotations' #folder containing parsed jaad annotations (used when first time loading data)
         self.dtype        = 'train'
         self.from_file    = False #read dataset from csv file or reprocess data
-        self.file         = '/data/smail-data/jaad_train_16_16.csv'
-        self.save_path    = '/data/smail-data/jaad_train_16_16.csv'
-        self.model_path    = '/data/smail-data/multitask_pv_lstm_trained.pkl'
+        self.save         = True
+        self.file         = '/data/smailait-data/jaad_train_16_16.csv'
+        self.save_path    = '/data/smailait-data/jaad_train_16_16.csv'
+        self.model_path    = '/data/smailait-data/models/multitask_pv_lstm_trained.pkl'
         self.loader_workers = 10
         self.loader_shuffle = True
         self.pin_memory     = False
@@ -32,12 +32,9 @@ class args():
         self.n_epochs       = 100
         self.hidden_size    = 512
         self.hardtanh_limit = 100
-        self.sample         = False
-        self.n_train_sequences = 40000
-        self.trainOrVal = 'train'
-        self.citywalks  = False
         self.input  = 16
         self.output = 16
+        self.stride = 16
         self.skip   = 1
         self.task   = 'bounding_box-intention'
         self.use_scenes = False       
@@ -46,7 +43,11 @@ class args():
 args = args()
 
 net = network.PV_LSTM(args).to(args.device)
-train, val = DataLoader.data_loader(args)
+train = DataLoader.data_loader(args)
+args.dtype = 'val'
+args.save_path = args.save_path.replace('train', 'val')
+args.file = args.file.replace('train', 'val')
+val = DataLoader.data_loader(args)
 
 optimizer = optim.Adam(net.parameters(), lr=args.lr)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=15, 
@@ -178,17 +179,7 @@ for epoch in range(args.n_epochs):
           '| fde: %.4f'% fde, '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, '| state_acc: %.4f'% avg_acc, 
           '| rec: %.4f'% avg_rec, '| pre: %.4f'% avg_pre, '| intention_acc: %.4f'% intent_acc, 
           '| t:%.4f'%(time.time()-start))
-    
-print('='*100)
-plt.figure(figsize=(10,8))
-plt.plot(list(range(len(train_s_scores))), train_s_scores, label = 'BB Training loss')
-plt.plot(list(range(len(val_s_scores))), val_s_scores, label = 'BB Validation loss')
-plt.plot(list(range(len(train_c_scores))), train_c_scores, label = 'Intention Training loss')
-plt.plot(list(range(len(val_c_scores))), val_c_scores, label = 'Intention Validation loss')
-plt.xlabel('epoch')
-plt.ylabel('Mean square error loss')
-plt.legend()
-plt.show()
+
 print('='*100) 
 print('Saving ...')
 torch.save(net.state_dict(), args.model_path)

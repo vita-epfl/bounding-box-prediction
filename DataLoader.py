@@ -8,14 +8,13 @@ import os
 import numpy as np
 from PIL import Image, ImageDraw
 import cv2
-import matplotlib.pyplot as plt
 import time
 import utils
-import matplotlib.pyplot as plt
 
 
 class myJAAD(torch.utils.data.Dataset):
     def __init__(self, args):
+        print('Loading', args.dtype, 'data ...')
         
         if(args.from_file):
             sequence_centric = pd.read_csv(args.file)
@@ -30,16 +29,12 @@ class myJAAD(torch.utils.data.Dataset):
             
         else:
             #read data
+            print('Reading data files ...')
             df = pd.DataFrame()
             new_index=0
             for file in glob.glob(os.path.join(args.jaad_dataset,args.dtype,"*")):
                 temp = pd.read_csv(file)
                 if not temp.empty:
-                    #drop unnecessary columns
-                    temp = temp.drop(columns=['type', 'occlusion', 'nod', 'slow_down', 'speed_up', 'WALKING', 'walking',
-                   'standing', 'looking', 'handwave', 'clear_path', 'CLEAR_PATH','STANDING', 
-                   'standing_pred', 'looking_pred', 'walking_pred','keypoints', 'crossing_pred'])
-                    
                     temp['file'] = [file for t in range(temp.shape[0])]
 
                     #assign unique ID to each 
@@ -51,8 +46,8 @@ class myJAAD(torch.utils.data.Dataset):
                     temp = temp.sort_values(['ID', 'frame'], axis=0)
 
                     df = df.append(temp, ignore_index=True)
-            print('reading files complete')
             
+            print('Processing data ...')
             #create sequence column
             df.insert(0, 'sequence', df.ID)
             
@@ -119,18 +114,12 @@ class myJAAD(torch.utils.data.Dataset):
                 
             sequence_centric = data.copy()
             
-        if args.sample:
-            if args.trainOrVal == 'train':
-                self.data = sequence_centric.loc[:args.n_train_sequences].copy().reset_index(drop=True)
-            elif args.trainOrVal == 'val':
-                self.data = sequence_centric.loc[args.n_train_sequences:].copy().reset_index(drop=True)
-    
-        else:
-            self.data = sequence_centric.copy().reset_index(drop=True)
+ 
+        self.data = sequence_centric.copy().reset_index(drop=True)
             
         self.args = args
         self.dtype = args.dtype
-        print(self.dtype, " set loaded")
+        print(args.dtype, "set loaded")
         print('*'*30)
         
 
@@ -195,32 +184,9 @@ class myJAAD(torch.utils.data.Dataset):
     
     
 def data_loader(args):
-    if args.dtype == 'train':
-        train_set = myJAAD(args)
-        train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+    dataset = myJAAD(args)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=args.batch_size, shuffle=args.loader_shuffle,
+        pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
 
-        args.trainOrVal = 'val'
-
-        val_set = myJAAD(args)
-        val_loader = torch.utils.data.DataLoader(
-            val_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
-        
-        return train_loader, val_loader
-    
-    elif args.dtype == 'val':
-    
-        #rgs.file = args.val_file
-        #rgs.dtype = 'val'
-        #rgs.trainOrVal = 'test'
-        #rgs.sample = False
-    
-        test_set = myJAAD(args)
-
-        test_loader = torch.utils.data.DataLoader(
-            test_set, batch_size=args.batch_size, shuffle=args.loader_shuffle,
-            pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
-
-        return test_loader
+    return dataloader
