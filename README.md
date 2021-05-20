@@ -9,7 +9,7 @@ Experiments on the JAAD dataset show the superiority of the performance of our m
 Also, although its simple architecture (more than 2 times faster), the performance of the bounding box prediction is comparable to the ones yielded by much more complex architectures.
 
 ## Introduction:
-This is the official code for the paper ["Pedestrian Intention Prediction: A Multi-task Perspective"](https://arxiv.org/abs/2010.10270), accepted and published in hEART 2021.
+This is the official code for the paper ["Pedestrian Intention Prediction: A Multi-task Perspective"](https://arxiv.org/abs/2010.10270), accepted and published in [hEART 2021](http://www.heart-web.org/) (the 9th Symposium of the European Association for Research in Transportation).
 
 ## Contents
 ------------
