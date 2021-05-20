@@ -1,10 +1,15 @@
-# Pedestrian Intention Forecasting: A Future Bounding Box Prediction Approach
+# Pedestrian Intention Prediction: A Multi-task Perspective
 
 ## _Absract_:
-In order to be globally deployed, autonomous cars must guarantee the safety of pedestrians. This isthe reason why forecasting pedestrians’ intentions sufficiently in advance is one of the most criticaland challenging tasks for autonomous vehicles.  This work tries to solve this problem by jointlypredicting the intention and visual states of pedestrians. In terms of visual states, whereas previouswork focused on x-y coordinates, we will also predict the size and indeed the whole bounding boxof the pedestrian.  The method is a recurrent neural network in a multi-task learning approach.  Ithas one head that predicts the intention of the pedestrian for each one of its future position andanother one predicting the visual states of the pedestrian. Experiments on the JAAD dataset show thesuperiority of the performance of our method compared to previous works for intention prediction.Also, although its simple architecture (more than 2 times faster), the performance of the boundingbox prediction is comparable to the ones yielded by much more complex architectures.
+In order to be globally deployed, autonomous cars must guarantee the safety of pedestrians. This is the reason why forecasting pedestrians' intentions sufficiently in advance is one of the most critical and challenging tasks for autonomous vehicles.
+This work tries to solve this problem by jointly predicting the intention and visual states of pedestrians.
+In terms of visual states, whereas previous work focused on x-y coordinates, we will also predict the size and indeed the whole bounding box of the pedestrian.
+The method is a recurrent neural network in a multi-task learning approach. It has one head that predicts the intention of the pedestrian for each one of its future position and another one predicting the visual states of the pedestrian.
+Experiments on the JAAD dataset show the superiority of the performance of our method compared to previous works for intention prediction.
+Also, although its simple architecture (more than 2 times faster), the performance of the bounding box prediction is comparable to the ones yielded by much more complex architectures.
 
 ## Introduction:
-This is the official code for the paper "Pedestrian Intention Forecasting: A Future Bounding Box Prediction Approach", to be published in the hEART conference in April 2021.
+This is the official code for the paper ["Pedestrian Intention Prediction: A Multi-task Perspective"](https://arxiv.org/abs/2010.10270), accepted and published in hEART 2021.
 
 ## Contents
 ------------
