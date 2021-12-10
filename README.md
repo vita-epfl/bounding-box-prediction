@@ -86,3 +86,16 @@ python3 test.py
 ------------
   * Ubuntu 18.04, CUDA 10.1
   * Windows 10, CUDA 10.1
+
+
+
+### Citation
+
+```
+@inproceedings{bouhsain2020pedestrian,
+title={Pedestrian Intention Prediction: A Multi-task Perspective},
+ author={Bouhsain, Smail and Saadatnejad, Saeed and Alahi, Alexandre},
+  booktitle = {European Association for Research in Transportation  (hEART)},
+  year={2020},
+}
+```
