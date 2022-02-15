@@ -152,9 +152,6 @@ for epoch in range(args.n_epochs):
             intent_preds.extend(intentions)
             intent_targets.extend(label_c)
         
-        avg_epoch_val_s_loss += float(speed_loss)
-        avg_epoch_val_c_loss += float(crossing_loss)
-        
     avg_epoch_val_s_loss /= counter
     avg_epoch_val_c_loss /= counter
     val_s_scores.append(avg_epoch_val_s_loss)
