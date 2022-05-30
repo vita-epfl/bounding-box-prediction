@@ -3,8 +3,7 @@
 This library contains two research projects for bounding box predictions in 2D and 3D
 ---
 
-The official code for two papers accepted in hEART (the Symposium of the European Association for Research in Transportation):
-
+These two codes will be merged soon to make a unified library:
 
 > __Pedestrian 3D Bounding Box Prediction, hEART 2022__<br /> 
 >  S. Saadatnejad, Y. Ju, A. Alahi <br /> 
@@ -17,7 +16,6 @@ The official code for two papers accepted in hEART (the Symposium of the Europea
 > __[Paper](https://arxiv.org/abs/2010.10270)__ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; __[Citation](https://github.com/vita-epfl/bounding-box-prediction#for-citation)__  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  __[Code](https://github.com/vita-epfl/bounding-box-prediction/tree/master/2D)__
      
 
-These two codes will be merged soon to make a unified library.
 
 
 ---
