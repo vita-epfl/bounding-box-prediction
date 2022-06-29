@@ -7,7 +7,7 @@ These two codes will be merged soon to make a unified library:
 
 > __Pedestrian 3D Bounding Box Prediction, hEART 2022__<br /> 
 >  S. Saadatnejad, Y. Ju, A. Alahi <br /> 
->  __[Paper](https://arxiv.org/abs/2010.10270)__ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; __[Citation](https://github.com/vita-epfl/bounding-box-prediction#for-citation)__   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  __[Code](https://github.com/vita-epfl/bounding-box-prediction/tree/master/3D)__
+>  __[Paper](https://arxiv.org/abs/2206.14195)__ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; __[Citation](https://github.com/vita-epfl/bounding-box-prediction#for-citation)__   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  __[Code](https://github.com/vita-epfl/bounding-box-prediction/tree/master/3D)__
      
 
 
