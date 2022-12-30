@@ -15,30 +15,3 @@ These two codes will be merged soon to make a unified library:
 > S. Bouhsain, S. Saadatnejad, A. Alahi <br /> 
 > __[Paper](https://arxiv.org/abs/2010.10270)__ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; __[Citation](https://github.com/vita-epfl/bounding-box-prediction#for-citation)__  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  __[Code](https://github.com/vita-epfl/bounding-box-prediction/tree/master/2D)__
      
-
-
-
----
-
-
-
-
-
-
-
-### Citation
-
-```
-@inproceedings{saadatnejad2022pedestrian,
-title={Pedestrian 3D Bounding Box Prediction},
- author={Saadatnejad, Saeed and Ju, Yi Zhou and Alahi, Alexandre},
-  booktitle = {European Association for Research in Transportation  (hEART)},
-  year={2022},
-}
-@inproceedings{bouhsain2020pedestrian,
-title={Pedestrian Intention Prediction: A Multi-task Perspective},
- author={Bouhsain, Smail and Saadatnejad, Saeed and Alahi, Alexandre},
-  booktitle = {European Association for Research in Transportation  (hEART)},
-  year={2020},
-}
-```
