@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import argparse
 
 import torchvision
 import torchvision.transforms as transforms
@@ -14,34 +15,68 @@ import DataLoader
 import network
 import utils
 
-class args():
-    def __init__(self):
-        self.jaad_dataset = '/data/smailait-data/JAAD/processed_annotations' #folder containing parsed jaad annotations (used when first time loading data)
-        self.dtype        = 'train'
-        self.from_file    = False #read dataset from csv file or reprocess data
-        self.save         = True
-        self.file         = '/data/smailait-data/jaad_train_16_16.csv'
-        self.save_path    = '/data/smailait-data/jaad_train_16_16.csv'
-        self.model_path    = '/data/smailait-data/models/multitask_pv_lstm_trained.pkl'
-        self.loader_workers = 10
-        self.loader_shuffle = True
-        self.pin_memory     = False
-        self.image_resize   = [240, 426]
-        self.device         = 'cuda'
-        self.batch_size     = 100
-        self.n_epochs       = 100
-        self.hidden_size    = 512
-        self.hardtanh_limit = 100
-        self.input  = 16
-        self.output = 16
-        self.stride = 16
-        self.skip   = 1
-        self.task   = 'bounding_box-intention'
-        self.use_scenes = False       
-        self.lr = 0.00001
-        
-args = args()
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train PV-LSTM network')
+    
+    parser.add_argument('--jaad_dataset',
+                        help='Path to dataset',
+                        required=True, type=str)
+    parser.add_argument('--dtype', type=str, default='train')
+    parser.add_argument("--from_file", type=bool, default=False)       
+    parser.add_argument('--save', type=bool, default=True)
+    parser.add_argument('--file', type=str, default='/jaad_train_16_16.csv')
+    parser.add_argument('--save_path', type=str, default='/jaad_train_16_16.csv')
+    parser.add_argument('--model_path', type=str, default='/models/multitask_pv_lstm_trained.pkl')
+    parser.add_argument('--loader_workers', type=int, default=10)
+    parser.add_argument('--loader_shuffle', type=bool, default=True)
+    parser.add_argument('--pin_memory', type=bool, default=False)
+    parser.add_argument('--image_resize', type=str, default='[240, 426]')
+    parser.add_argument('--device', type=str, default='cuda')
+    parser.add_argument('--batch_size', type=int, default=100)
+    parser.add_argument('--n_epochs', type=int, default=100)
+    parser.add_argument('--hidden_size', type=int, default=512)
+    parser.add_argument('--hardtanh_limit', type=int, default=100)
+    parser.add_argument('--input', type=int, default=16)
+    parser.add_argument('--output', type=int, default=16)
+    parser.add_argument('--stride', type=int, default=16)
+    parser.add_argument('--skip', type=int, default=1)
+    parser.add_argument('--task', type=str, default='bounding_box-intention')
+    parser.add_argument('--use_scenes', type=bool, default=False)
+    parser.add_argument('--lr', type=int, default=1e-5)
 
+    args = parser.parse_args()
+
+    return args
+
+# class args():
+#     def __init__(self):
+#         self.jaad_dataset = '/data/smailait-data/JAAD/processed_annotations' #folder containing parsed jaad annotations (used when first time loading data)
+#         self.dtype        = 'train'
+#         self.from_file    = False #read dataset from csv file or reprocess data
+#         self.save         = True
+#         self.file         = '/data/smailait-data/jaad_train_16_16.csv'
+#         self.save_path    = '/data/smailait-data/jaad_train_16_16.csv'
+#         self.model_path    = '/data/smailait-data/models/multitask_pv_lstm_trained.pkl'
+#         self.loader_workers = 10
+#         self.loader_shuffle = True
+#         self.pin_memory     = False
+#         self.image_resize   = [240, 426]
+#         self.device         = 'cuda'
+#         self.batch_size     = 100
+#         self.n_epochs       = 100
+#         self.hidden_size    = 512
+#         self.hardtanh_limit = 100
+#         self.input  = 16
+#         self.output = 16
+#         self.stride = 16
+#         self.skip   = 1
+#         self.task   = 'bounding_box-intention'
+#         self.use_scenes = False       
+#         self.lr = 0.00001
+        
+# args = args()
+
+args = parse_args()
 net = network.PV_LSTM(args).to(args.device)
 train = DataLoader.data_loader(args)
 args.dtype = 'val'
