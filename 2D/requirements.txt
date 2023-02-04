@@ -5,5 +5,7 @@ matplotlib
 pillow
 jupyter
 pandas
-sklearn
+# sklearn
+scikit-learn 
+scipy
 opencv-python

@@ -3,19 +3,20 @@ import sys
 import argparse
 import numpy as np
 import pandas as pd
+import jaad_data
+
 
 parser = argparse.ArgumentParser()
-parser.add_argument('jaad_path', type=str, help='Path to zhr cloned JAAD repository')
-parser.add_argument('train_ratio', type=float, help='Ratio of train video')
-parser.add_argument('val_ratio', type=float, help='Ratio of val video')
-parser.add_argument('test_ratio', type=float, help='Ratio of test video')
+parser.add_argument('--data_path', type=str, help='Path to cloned JAAD repository')
+parser.add_argument('--train_ratio', type=float, default=0.7, help='Ratio of train video between [0.1]')
+parser.add_argument('--val_ratio', type=float, default=0.2, help='Ratio of val video between [0.1]')
+parser.add_argument('--test_ratio', type=float, default=0.1, help='Ratio of test video between [0.1]')
 
 args = parser.parse_args()
 
-data_path = args.jaad_path
+data_path = args.data_path
 sys.path.insert(1, data_path+'/')
 
-import jaad_data
 
 if not os.path.isdir(os.path.join(data_path, 'processed_annotations')):
     os.mkdir(os.path.join(data_path, 'processed_annotations'))

@@ -9,16 +9,20 @@ import numpy as np
 from PIL import Image, ImageDraw
 import cv2
 import time
-import import_ipynb
+# import import_ipynb
 import utils
 
 
 class myJAAD(torch.utils.data.Dataset):
     def __init__(self, args):
         print('Loading', args.dtype, 'data ...')
+        filename = 'jaad_{}_{}_{}_{}.csv'.format(args.dtype, str(args.input),\
+                                str(args.output), str(args.stride)) 
+        output = os.path.join(args.out_path, args.save_path, filename)
         
         if(args.from_file):
-            sequence_centric = pd.read_csv(args.file)
+            # sequence_centric = pd.read_csv(args.file)
+            sequence_centric = pd.read_csv(output)
             df = sequence_centric.copy()      
             for v in list(df.columns.values):
                 print(v+' loaded')
@@ -33,7 +37,7 @@ class myJAAD(torch.utils.data.Dataset):
             print('Reading data files ...')
             df = pd.DataFrame()
             new_index=0
-            for file in glob.glob(os.path.join(args.jaad_dataset,args.dtype,"*")):
+            for file in glob.glob(os.path.join(args.data_path,args.dtype,"*")):
                 temp = pd.read_csv(file)
                 if not temp.empty:
                     temp['file'] = [file for t in range(temp.shape[0])]
@@ -111,7 +115,7 @@ class myJAAD(torch.utils.data.Dataset):
             data['label'] = data.crossing_true.apply(lambda x: 1. if 1. in x else 0.)
             
             if args.save:
-                data.to_csv(args.save_path, index=False)
+                data.to_csv(output, index=False)
                 
             sequence_centric = data.copy()
             
