@@ -3,6 +3,15 @@ import torch
 import random
 import json
 
+
+def data_loader(args, dataset):
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=args.batch_size, shuffle=args.loader_shuffle,
+        pin_memory=args.pin_memory, num_workers=args.loader_workers, drop_last=True)
+
+    return dataloader
+
+
 def ADE(pred, true, is_3D=False):
     if not is_3D:
         displacement = torch.sqrt((pred[:,:,0]-true[:,:,0])**2 + (pred[:,:,1]-true[:,:,1])**2)

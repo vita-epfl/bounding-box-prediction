@@ -7,40 +7,40 @@ Purpose: Preprocessing JTA dataset for 3D bounding box prediction.
 
 """
 import json
-import logging
 import os
 import re
 import pandas as pd
 import numpy as np
+import argparse
 
+# Arguments
+def parse_args():
+    parser = argparse.ArgumentParser(description='Preprocessing')
+    
+    parser.add_argument('--data_dir', type=str,
+                        help='Path to dataset',
+                        required=True)
 
-# Define paths
-# ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = '/home/yju/JTA'
-PREPROCESSED_DATA_DIR = os.path.join(ROOT_DIR, 'preprocessed_annotations')
+    args = parser.parse_args()
+
+    return args
 
 
 class JTAPreprocessor():
     dataset_total_frame_num = 900
     
-    def __init__(self, dataset_path,custom_name=None):
-        # User set
-        self.dataset_path = dataset_path
-        self.is_3d = True
-        
+    def __init__(self, data_dir, custom_name=None):
+        self.data_dir = data_dir
         self.custom_name = custom_name
 
-        if self.is_3d:
-            self.start_dim = 5
-            self.end_dim = 8
-        else:
-            self.start_dim = 3
-            self.end_dim = 5
-        
+        self.start_dim = 5
+        self.end_dim = 8
         self.occluded_idx = 8
-        
-        if not os.path.isdir(PREPROCESSED_DATA_DIR):    
-            os.mkdir(PREPROCESSED_DATA_DIR)
+
+        # Create folder in original dataset
+        self.out_dir = os.path.join(self.data_dir, 'preprocessed_annotations')
+        if not os.path.isdir(self.out_dir):    
+            os.mkdir(self.out_dir)
 
     
     def bbox3d_padded(self, x_min, y_min, z_min, x_max, y_max, z_max, \
@@ -73,34 +73,33 @@ class JTAPreprocessor():
        # return np.round(x_min,4), np.round(y_min,4), np.round(z_min,4), width, height, depth
         return x, y, z, width, height, depth
     
-    def normal(self, data_type='train'):
-        logger.info('start creating JTA normal static data ... ')
+    def normal(self, data_type):
+        print('='*100)
+        print('Parsing {} data ...'.format(data_type))
         
-        data_path = os.path.join(self.dataset_path, 'annotations', data_type)
+        data_dir = os.path.join(self.data_dir, 'annotations', data_type)
         
-        if not os.path.isdir(os.path.join(PREPROCESSED_DATA_DIR, data_type)):    
-            os.mkdir(os.path.join(PREPROCESSED_DATA_DIR, data_type))
+        if not os.path.isdir(os.path.join(self.out_dir, data_type)):    
+            os.mkdir(os.path.join(self.out_dir, data_type))
         
-        image_location =  os.path.join(self.dataset_path, 'frames', data_type)
+        image_location =  os.path.join(self.data_dir, 'frames', data_type)
         
         # parsing all data
-        for entry in os.scandir(data_path):
+        for entry in os.scandir(data_dir):
             if not entry.path.endswith('.json'):
                 continue
             with open(entry.path, 'r') as json_file:
-                #print('Parsing: {}'.format(entry.name))
-                logger.info(f'file name: {entry.name}')
                 video = re.search("(seq_\d+).json", entry.name).group(1)
                 
                 if self.custom_name is not None:
                     filename = video + '_' + self.custom_name + '.csv'
-                    path = os.path.join(PREPROCESSED_DATA_DIR, data_type, filename)
+                    final_path = os.path.join(self.out_dir, data_type, filename)
                 else:
                     filename = video +'.csv'
-                    path = os.path.join(PREPROCESSED_DATA_DIR, data_type, filename)
+                    final_path = os.path.join(self.out_dir, data_type, filename)
                     
-                #assert os.path.exists(path) is False, f"preprocessed file exists at {path}"
-                if os.path.exists(path):
+                #assert os.path.exists(final_path) is False, f"preprocessed file exists at {path}"
+                if os.path.exists(final_path):
                     print('File {} exists...skipped...'.format(entry.name))
                     continue
 
@@ -174,20 +173,20 @@ class JTAPreprocessor():
                 data_to_write['scenefolderpath'] = image_path
                 data_to_write['filename'] = data_to_write.frame
                 data_to_write.filename = data_to_write.filename.apply(lambda x: '%d'%int(x)+'.jpg')
-                data_to_write.to_csv(os.path.join(path), index=False)
+                data_to_write.to_csv(final_path, index=False)
                 print('File {} saved... '.format(filename))
-                
+        
+        print("Done!")        
         return data_to_write
 
 
         
 if __name__ == '__main__':
-    path = '/work/vita/JTA_dataset/Original_JTA_dataset'
-    
-#     raw_data = ['test', 'val']
-    raw_data = ['train']
+    # path = '/work/vita/JTA_dataset/Original_JTA_dataset'
+    args = parse_args()
+
+    raw_data = ['train', 'test', 'val']
                
     for data_type in raw_data:
-        print('Reading {} data...'.format(data_type))
-        preprocessor = JTAPreprocessor(dataset_path=path)
+        preprocessor = JTAPreprocessor(data_dir=args.data_dir)
         preprocessor.normal(data_type=data_type)

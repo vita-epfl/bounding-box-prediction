@@ -2,8 +2,6 @@ import numpy as np
 import torch
 import random
 import json
-import os
-
 
 def ADE(pred, true, is_3D=False):
     if not is_3D:
@@ -146,7 +144,6 @@ def speed2pos(preds, obs_p, is_3D=False):
     return pred_pos
 
 
-    
 def check_continuity(my_list, skip):
     '''
     Checks if there are frames continuously
