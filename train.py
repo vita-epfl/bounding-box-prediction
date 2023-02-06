@@ -13,7 +13,11 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import recall_score, accuracy_score, average_precision_score, precision_score
 
-from datasets.jaad import JAAD
+# from datasets.jaad import JAAD
+# from datasets.jta import JTA
+# from datasets.nuscenes import NuScenes
+import datasets
+
 import network
 import utils
 from utils import data_loader
@@ -22,20 +26,20 @@ from utils import data_loader
 def parse_args():
     parser = argparse.ArgumentParser(description='Train PV-LSTM network')
     
-    parser.add_argument('--data_path', type=str,
+    parser.add_argument('--data_dir', type=str,
                         help='Path to dataset',
                         required=True)
     parser.add_argument('--dataset', type=str, 
                         help='Datasets supported: jaad, jta, nuscenes',
                         required=True)
-    parser.add_argument('--out_path', type=str, 
+    parser.add_argument('--out_dir', type=str, 
                         help='Path to save output',
                         required=True)      
     parser.add_argument('--is_3D', type=bool, default=False) # Set this to true for JTA, Nuscenes              
     parser.add_argument('--dtype', type=str, default='train')
-    parser.add_argument("--from_file", type=bool, default=True)       
+    parser.add_argument("--from_file", type=bool, default=False)       
     parser.add_argument('--save', type=bool, default=True)
-    parser.add_argument('--save_path', type=str, default='')
+    parser.add_argument('--log_name', type=str, default='')
     parser.add_argument('--loader_workers', type=int, default=10)
     parser.add_argument('--loader_shuffle', type=bool, default=True)
     parser.add_argument('--pin_memory', type=bool, default=False)
@@ -303,10 +307,10 @@ def training(args, net, train, val):
             filename = 'data_' + file + '.csv'
             modelname = 'model_' + file + '.pkl'
 
-        df.to_csv(os.path.join(args.out_path, args.save_path, filename), index=False)
-        torch.save(net.state_dict(), os.path.join(args.out_path, args.save_path, modelname))
+        df.to_csv(os.path.join(args.out_dir, args.log_name, filename), index=False)
+        torch.save(net.state_dict(), os.path.join(args.out_dir, args.log_name, modelname))
         
-        print('Training data and model saved to {}\n'.format(os.path.join(args.out_path, args.save_path)))
+        print('Training data and model saved to {}\n'.format(os.path.join(args.out_dir, args.log_name)))
 
     print('='*100)
     print('Done !')
@@ -315,19 +319,57 @@ def training(args, net, train, val):
 if __name__ == '__main__':
     args = parse_args()
 
-    if not args.save_path:
-        args.save_path = '{}_{}_{}_{}'.format(args.dataset, str(args.input),\
+    # create output dir
+    if not args.log_name:
+        args.log_name = '{}_{}_{}_{}'.format(args.dataset, str(args.input),\
                                 str(args.output), str(args.stride)) 
-    if not os.path.isdir(os.path.join(args.out_path, args.save_path)):
-        os.mkdir(os.path.join(args.out_path, args.save_path))
+    if not os.path.isdir(os.path.join(args.out_dir, args.log_name)):
+        os.mkdir(os.path.join(args.out_dir, args.log_name))
 
-    dataset = JAAD(args)
+    # select dataset
+    if args.dataset == 'jaad':
+        args.is_3D = False
+        data_class = 'JAAD'
+    elif args.dataset == 'jta':
+        args.is_3D = True
+        data_class = 'JTA'
+    elif args.dataset == 'nuscenes':
+        args.is_3D = True
+        data_class = 'NuScenes'
+    else:
+        print('Unknown dataset entered! Please select from available datasets: jaad, jta, nuscenes...')
 
-    args.dtype = 'train'
-    train = data_loader(args, dataset)
+    # load data
+    train_set = eval('datasets.'+ args.dataset)(
+                data_dir=args.data_dir,
+                out_dir=os.path.join(args.out_dir, args.log_name),
+                dtype='train',
+                input=args.input,
+                output=args.output,
+                stride=args.stride,
+                skip=args.skip,
+                task=args.task,
+                from_file=args.from_file,
+                save=args.save
+                )
 
-    args.dtype = 'val'
-    val = data_loader(args, dataset)
+    train_loader = data_loader(args, train_set)
 
+    val_set = eval('datasets.'+ args.dataset)(
+                data_dir=args.data_dir,
+                out_dir=os.path.join(args.out_dir, args.log_name),
+                dtype='val',
+                input=args.input,
+                output=args.output,
+                stride=args.stride,
+                skip=args.skip,
+                task=args.task,
+                from_file=args.from_file,
+                save=args.save
+                )
+    val_loader = data_loader(args, val_set)
+
+    # initiate network
     net = network.PV_LSTM(args).to(args.device)
-    training(args, net, train, val)
+
+    training(args, net, train_loader, val_loader)

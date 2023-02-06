@@ -38,7 +38,7 @@ class JTAPreprocessor():
         self.occluded_idx = 8
 
         # Create folder in original dataset
-        self.out_dir = os.path.join(self.data_dir, 'preprocessed_annotations')
+        self.out_dir = os.path.join(self.data_dir, 'processed_annotations')
         if not os.path.isdir(self.out_dir):    
             os.mkdir(self.out_dir)
 
