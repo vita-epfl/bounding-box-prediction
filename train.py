@@ -37,7 +37,7 @@ def parse_args():
                         required=True)      
     parser.add_argument('--is_3D', type=bool, default=False) # Set this to true for JTA, Nuscenes              
     parser.add_argument('--dtype', type=str, default='train')
-    parser.add_argument("--from_file", type=bool, default=False)       
+    parser.add_argument("--from_file", type=bool, default=True)       
     parser.add_argument('--save', type=bool, default=True)
     parser.add_argument('--log_name', type=str, default='')
     parser.add_argument('--loader_workers', type=int, default=10)
@@ -53,7 +53,7 @@ def parse_args():
     parser.add_argument('--output', type=int, default=16)
     parser.add_argument('--stride', type=int, default=16)
     parser.add_argument('--skip', type=int, default=1)
-    parser.add_argument('--task', type=str, default='bounding_box-intention')
+    parser.add_argument('--task', type=str, default='2D_bounding_box-intention')
     parser.add_argument('--use_scenes', type=bool, default=False)
     parser.add_argument('--lr', type=int, default=1e-5)
     parser.add_argument('--lr_scheduler', type=bool, default=False)
@@ -77,17 +77,13 @@ def training(args, net, train, val):
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=15, 
                                                         threshold = 1e-8, verbose=True)
     
+    # init values
+    mse = nn.MSELoss()
+    bce = nn.BCELoss()
+    data = []
+
     # For 2D datasets
-    if not args.is_3D:
-        mse = nn.MSELoss()
-        bce = nn.BCELoss()
-
-        # train_s_scores = []
-        # train_c_scores = []
-        # val_s_scores   = []
-        # val_c_scores   = []
-        data = []
-
+    if '2D_bounding_box' in args.task:
         for epoch in range(args.n_epochs):
             start = time.time()
             
@@ -133,8 +129,6 @@ def training(args, net, train, val):
                 
             avg_epoch_train_s_loss /= counter
             avg_epoch_train_c_loss /= counter
-            # train_s_scores.append(avg_epoch_train_s_loss)
-            # train_c_scores.append(avg_epoch_train_c_loss)
             
             counter=0
             state_preds = []
@@ -181,8 +175,6 @@ def training(args, net, train, val):
                 
             avg_epoch_val_s_loss /= counter
             avg_epoch_val_c_loss /= counter
-            # val_s_scores.append(avg_epoch_val_s_loss)
-            # val_c_scores.append(avg_epoch_val_c_loss)
             
             ade  /= counter
             fde  /= counter     
@@ -213,13 +205,7 @@ def training(args, net, train, val):
                     'ade', 'fde', 'aiou', 'fiou', 'intention_acc']) 
 
     # For 3D datasets
-    else:
-        mse = nn.MSELoss()
-        bce = nn.BCELoss()
-        train_s_scores = []
-        # val_s_scores   = []
-        data = []
-
+    if '3D_bounding_box' in args.task:
         for epoch in range(args.n_epochs):
             start = time.time()
             
@@ -241,17 +227,22 @@ def training(args, net, train, val):
                 target_p = target_p.to(device='cuda')
                 
                 net.zero_grad()
-                speed_preds = net(speed=obs_s, pos=obs_p) #[100,16,6]
-                speed_loss  = mse(speed_preds, target_s)
-        
-                loss = speed_loss
-                loss.backward()
-                optimizer.step()
-                
-                avg_epoch_train_s_loss += float(speed_loss)
+
+                if 'attribute' in args.task:
+                    pass
+                else:
+                    speed_preds = net(speed=obs_s, pos=obs_p)[0] #[100,16,6]
+                    # print(speed_preds.size())
+                    # print(target_s.size())
+                    speed_loss  = mse(speed_preds, target_s)
+            
+                    loss = speed_loss
+                    loss.backward()
+                    optimizer.step()
+                    
+                    avg_epoch_train_s_loss += float(speed_loss)
                 
             avg_epoch_train_s_loss /= counter
-            # train_s_scores.append(avg_epoch_train_s_loss)
             
             # VALIDATION
             counter=0
@@ -263,7 +254,7 @@ def training(args, net, train, val):
                 target_p = target_p.to(device='cuda')
                 
                 with torch.no_grad():
-                    speed_preds = net(speed=obs_s, pos=obs_p)
+                    speed_preds = net(speed=obs_s, pos=obs_p)[0]
                     speed_loss    = mse(speed_preds, target_s)
                     
                     avg_epoch_val_s_loss += float(speed_loss)
@@ -275,7 +266,6 @@ def training(args, net, train, val):
                     fiou += float(utils.FIOU(preds_p, target_p, is_3D=True))
                 
             avg_epoch_val_s_loss /= counter
-            # val_s_scores.append(avg_epoch_val_s_loss)
             
             if args.lr_scheduler:
                 scheduler.step(avg_epoch_val_s_loss)
@@ -340,7 +330,7 @@ if __name__ == '__main__':
         print('Unknown dataset entered! Please select from available datasets: jaad, jta, nuscenes...')
 
     # load data
-    train_set = eval('datasets.'+ args.dataset)(
+    train_set = eval('datasets.' + args.dataset)(
                 data_dir=args.data_dir,
                 out_dir=os.path.join(args.out_dir, args.log_name),
                 dtype='train',
@@ -355,7 +345,7 @@ if __name__ == '__main__':
 
     train_loader = data_loader(args, train_set)
 
-    val_set = eval('datasets.'+ args.dataset)(
+    val_set = eval('datasets.' + args.dataset)(
                 data_dir=args.data_dir,
                 out_dir=os.path.join(args.out_dir, args.log_name),
                 dtype='val',
@@ -372,4 +362,5 @@ if __name__ == '__main__':
     # initiate network
     net = network.PV_LSTM(args).to(args.device)
 
+    # training
     training(args, net, train_loader, val_loader)

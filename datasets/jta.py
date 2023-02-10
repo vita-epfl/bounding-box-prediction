@@ -64,7 +64,7 @@ class JTA(torch.utils.data.Dataset):
             for file in glob.glob(os.path.join(self.data_dir, dtype,"*")):
                 df = pd.read_csv(file)
                 if not df.empty:
-                    # print(file)
+                    print(file)
                     
                     df = df.reset_index(drop = True) #reset index
                     df['bounding_box'] = df[['x', 'y', 'z', 'w', 'h', 'd']].apply(lambda row: \
@@ -160,7 +160,6 @@ class JTA(torch.utils.data.Dataset):
 
         print(sequence_centric.shape)
         print(dtype, "set loaded")
-        print('*'*30)
         
 
     def __len__(self):
