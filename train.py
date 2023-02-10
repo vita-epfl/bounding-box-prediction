@@ -6,8 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torchvision
-import torchvision.transforms as transforms
+# import torchvision
+# import torchvision.transforms as transforms
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,7 @@ def parse_args():
                         required=True)      
     parser.add_argument('--is_3D', type=bool, default=False) # Set this to true for JTA, Nuscenes              
     parser.add_argument('--dtype', type=str, default='train')
-    parser.add_argument("--from_file", type=bool, default=True)       
+    parser.add_argument("--from_file", type=bool, default=False)       
     parser.add_argument('--save', type=bool, default=True)
     parser.add_argument('--log_name', type=str, default='')
     parser.add_argument('--loader_workers', type=int, default=10)
@@ -66,7 +66,7 @@ def parse_args():
 def training(args, net, train, val):
     print('='*100)
     print('Training ...')
-
+    print('Task: ' + str(args.task))
     print('Learning rate: ' + str(args.lr))
     print('Number of epochs: ' + str(args.n_epochs))
     print('Hidden layer size: ' + str(args.hidden_size) + '\n')
@@ -232,8 +232,6 @@ def training(args, net, train, val):
                     pass
                 else:
                     speed_preds = net(speed=obs_s, pos=obs_p)[0] #[100,16,6]
-                    # print(speed_preds.size())
-                    # print(target_s.size())
                     speed_loss  = mse(speed_preds, target_s)
             
                     loss = speed_loss

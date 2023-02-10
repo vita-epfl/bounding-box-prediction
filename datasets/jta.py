@@ -183,32 +183,3 @@ class JTA(torch.utils.data.Dataset):
             outputs.append(true.type(torch.float32))
 
         return tuple(outputs)
-    
-
-# class args():
-#     def __init__(self, dtype):
-#         self.dataset = '/home/yju/JTA/preprocessed_annotations' #folder containing parsed annotations (used when first time loading data)
-#         self.dtype        = dtype
-#         self.from_file    = False #read dataset from csv file or reprocess data
-#         self.save         = True
-#         self.output_path   = '/home/yju/JTA'
-#         self.model_name    = '3d_bbox_trained.pkl'
-#         self.loader_workers = 12
-#         self.loader_shuffle = True
-#         self.pin_memory     = False
-#         self.device         = 'cuda'
-#         self.batch_size     = 128 # 32, 64
-#         self.n_epochs       = 100
-#         self.hidden_size    = 512
-#         self.hardtanh_limit = 100
-#         self.input  = 30
-#         self.output = 30
-#         self.stride = 60
-#         self.skip   = 2
-#         self.task   = 'bounding_box'  
-#         self.lr = 0.001 
-#         self.save_subset = False
-#         self.subset = 1000
-#         self.filename     = 'jta_{}_{}_{}_{}.csv'.format(str(self.dtype), str(self.input),\
-#                             str(self.output), str(self.stride)) 
-#         self.filename = os.path.join(self.output_path, self.filename)
