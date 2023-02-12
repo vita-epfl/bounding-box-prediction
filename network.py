@@ -79,7 +79,6 @@ class PV_LSTM(nn.Module):
                 intention = crossing_labels[:,-1]
                 outputs.append(intention)
             
-            # return tuple(outputs)
 
         elif '3D_bounding_box' in self.args.task:
             speed_outputs    = torch.tensor([], device=self.args.device)
@@ -95,20 +94,18 @@ class PV_LSTM(nn.Module):
             outputs.append(speed_outputs)
             
             if 'attribute' in self.args.task:
-                atrrib_outputs = torch.tensor([], device=self.args.device)
+                attrib_outputs = torch.tensor([], device=self.args.device)
                 in_at = pos[:,-1,:]
                 
                 hda = hpo + hsp
                 cda = cpo + csp
                 for i in range(self.args.output//self.args.skip):
-                    hda, cda         = self.atrrib_decoder(in_at, (hda, cda))
-                    atrrib_output  = self.fc_atrrib(hda)
-                    in_at            = self.pos_embedding(hda).detach()
-                    atrrib_output  = self.softmax(atrrib_output)
-                    atrrib_outputs = torch.cat((atrrib_outputs, atrrib_output.unsqueeze(1)), dim = 1)
+                    hda, cda       = self.attrib_decoder(in_at, (hda, cda))
+                    attrib_output  = self.fc_attrib(hda)
+                    in_at          = self.pos_embedding(hda).detach()
+                    attrib_output  = self.softmax(attrib_output)
+                    attrib_outputs = torch.cat((attrib_outputs, attrib_output.unsqueeze(1)), dim = 1)
 
-                outputs.append(atrrib_outputs)
+                outputs.append(attrib_outputs)
         
         return tuple(outputs)
-            # else:
-            #     return outputs[0]

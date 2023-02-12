@@ -13,11 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import recall_score, accuracy_score, average_precision_score, precision_score
 
-# from datasets.jaad import JAAD
-# from datasets.jta import JTA
-# from datasets.nuscenes import NuScenes
 import datasets
-
 import network
 import utils
 from utils import data_loader
@@ -131,10 +127,6 @@ def training(args, net, train, val):
             avg_epoch_train_c_loss /= counter
             
             counter=0
-            state_preds = []
-            state_targets = []
-            intent_preds = []
-            intent_targets = []
 
             for idx, (obs_s, target_s, obs_p, target_p, target_c, label_c) in enumerate(val):
                 counter+=1
@@ -167,11 +159,6 @@ def training(args, net, train, val):
                     
                     label_c = label_c.view(-1).cpu().numpy()
                     intentions = intentions.view(-1).detach().cpu().numpy()
-                    
-                    state_preds.extend(crossing_preds)
-                    state_targets.extend(target_c)
-                    intent_preds.extend(intentions)
-                    intent_targets.extend(label_c)
                 
             avg_epoch_val_s_loss /= counter
             avg_epoch_val_c_loss /= counter
@@ -206,84 +193,184 @@ def training(args, net, train, val):
 
     # For 3D datasets
     if '3D_bounding_box' in args.task:
-        for epoch in range(args.n_epochs):
-            start = time.time()
-            
-            avg_epoch_train_s_loss = 0
-            avg_epoch_val_s_loss   = 0
-            
-            ade  = 0
-            fde  = 0
-            aiou = 0
-            fiou = 0
-            
-            # TRAINING
-            counter = 0
-            for idx, (obs_s, target_s, obs_p, target_p) in enumerate(train):
-                counter += 1
-                obs_s    = obs_s.to(device='cuda')
-                target_s = target_s.to(device='cuda')
-                obs_p    = obs_p.to(device='cuda')
-                target_p = target_p.to(device='cuda')
-                
-                net.zero_grad()
+        start = time.time()
 
-                if 'attribute' in args.task:
-                    pass
-                else:
-                    speed_preds = net(speed=obs_s, pos=obs_p)[0] #[100,16,6]
+        avg_epoch_train_s_loss = 0
+        avg_epoch_val_s_loss   = 0
+
+        ade  = 0
+        fde  = 0
+        aiou = 0
+        fiou = 0
+
+        if 'attribute' in args.task:
+            for epoch in range(args.n_epochs):
+                avg_epoch_train_a_loss = 0
+                avg_epoch_val_a_loss   = 0
+
+                # TRAINING
+                counter = 0
+                for idx, (obs_s, target_s, obs_p, target_p, target_a) in enumerate(train):
+                    counter += 1
+                    obs_s    = obs_s.to(device='cuda')
+                    target_s = target_s.to(device='cuda')
+                    obs_p    = obs_p.to(device='cuda')
+                    target_p = target_p.to(device='cuda')
+                    target_a = target_a.to(device='cuda')
+                    
+                    net.zero_grad()
+
+                    speed_preds, attrib_preds = net(speed=obs_s, pos=obs_p) #[100,16,6]
                     speed_loss  = mse(speed_preds, target_s)
+                    attrib_loss = mse(attrib_preds, target_a)
             
-                    loss = speed_loss
+                    attrib_loss = 0
+                    for i in range(target_a.shape[1]):
+                        attrib_loss += bce(attrib_preds[:,i], target_a[:,i])
+                        
+                    attrib_loss /= target_a.shape[1]
+
+                    loss = speed_loss + attrib_loss
                     loss.backward()
                     optimizer.step()
                     
                     avg_epoch_train_s_loss += float(speed_loss)
-                
-            avg_epoch_train_s_loss /= counter
-            
-            # VALIDATION
-            counter=0
-            for idx, (obs_s, target_s, obs_p, target_p) in enumerate(val):
-                counter += 1
-                obs_s    = obs_s.to(device='cuda')
-                target_s = target_s.to(device='cuda')
-                obs_p    = obs_p.to(device='cuda')
-                target_p = target_p.to(device='cuda')
-                
-                with torch.no_grad():
-                    speed_preds = net(speed=obs_s, pos=obs_p)[0]
-                    speed_loss    = mse(speed_preds, target_s)
+                    avg_epoch_train_a_loss += float(attrib_loss)
                     
-                    avg_epoch_val_s_loss += float(speed_loss)
-                    
-                    preds_p = utils.speed2pos(speed_preds, obs_p, is_3D=True)
-                    ade += float(utils.ADE(preds_p, target_p, is_3D=True))
-                    fde += float(utils.FDE(preds_p, target_p, is_3D=True))
-                    aiou += float(utils.AIOU(preds_p, target_p, is_3D=True))
-                    fiou += float(utils.FIOU(preds_p, target_p, is_3D=True))
+                avg_epoch_train_s_loss /= counter
+                avg_epoch_train_a_loss /= counter
                 
-            avg_epoch_val_s_loss /= counter
-            
-            if args.lr_scheduler:
-                scheduler.step(avg_epoch_val_s_loss)
-            
-            ade  /= counter
-            fde  /= counter     
-            aiou /= counter 
-            fiou /= counter
-            
-            data.append([epoch, avg_epoch_train_s_loss, avg_epoch_val_s_loss, \
-                        ade, fde, aiou, fiou])
+                # VALIDATION
+                counter=0
+                for idx, (obs_s, target_s, obs_p, target_p, target_a) in enumerate(val):
+                    counter += 1
+                    obs_s    = obs_s.to(device='cuda')
+                    target_s = target_s.to(device='cuda')
+                    obs_p    = obs_p.to(device='cuda')
+                    target_p = target_p.to(device='cuda')
+                    target_a = target_a.to(device='cuda')
+                    
+                    with torch.no_grad():
+                        speed_preds, attrib_preds = net(speed=obs_s, pos=obs_p) #[100,16,6]
+                        speed_loss  = mse(speed_preds, target_s)
+                        # attrib_loss = mse(attrib_preds, target_a)
+                        attrib_loss = 0
+                        for i in range(target_a.shape[1]):
+                            attrib_loss += bce(attrib_preds[:,i], target_a[:,i])
+                            
+                        attrib_loss /= target_a.shape[1]
+                        
+                        avg_epoch_val_s_loss += float(speed_loss)
+                        avg_epoch_val_a_loss += float(attrib_loss)
+                        
+                        preds_p = utils.speed2pos(speed_preds, obs_p, is_3D=True)
+                        ade += float(utils.ADE(preds_p, target_p, is_3D=True))
+                        fde += float(utils.FDE(preds_p, target_p, is_3D=True))
+                        aiou += float(utils.AIOU(preds_p, target_p, is_3D=True))
+                        fiou += float(utils.FIOU(preds_p, target_p, is_3D=True))
+                    
+                avg_epoch_val_s_loss /= counter
+                avg_epoch_val_a_loss /= counter
+                
+                if args.lr_scheduler:
+                    scheduler.step(attrib_loss)
+                
+                ade  /= counter
+                fde  /= counter     
+                aiou /= counter 
+                fiou /= counter
+                
+                data.append([epoch, avg_epoch_train_s_loss, avg_epoch_val_s_loss, avg_epoch_train_a_loss, avg_epoch_val_a_loss,\
+                            ade, fde, aiou, fiou])
 
-            print('e:', epoch, '| ts: %.6f'% avg_epoch_train_s_loss, 
-                '| vs: %.6f'% avg_epoch_val_s_loss, 
-                '| ade: %.4f'% ade, '| fde: %.4f'% fde, 
-                '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, 
-                '| t:%.4f'%(time.time()-start))
-        
-        df = pd.DataFrame(data, columns =['epoch', 'train_loss', 'val_loss', \
-                    'ade', 'fde', 'aiou', 'fiou'])
+                print('e:', epoch, '| ts: %.6f'% avg_epoch_train_s_loss, 
+                    '| vs: %.6f'% avg_epoch_val_s_loss, 
+                    '| ta: %.6f'% avg_epoch_train_a_loss, 
+                    '| va: %.6f'% avg_epoch_val_a_loss, 
+                    '| ade: %.4f'% ade, '| fde: %.4f'% fde, 
+                    '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, 
+                    '| t:%.4f'%(time.time()-start))
+            
+            df = pd.DataFrame(data, columns =['epoch', 'train_loss', 'val_loss', 'train_attrib_loss', 'val_attrib_loss',\
+                        'ade', 'fde', 'aiou', 'fiou'])
+
+        else:
+            for epoch in range(args.n_epochs):
+                # TRAINING
+                counter = 0
+                for idx, (obs_s, target_s, obs_p, target_p) in enumerate(train):
+                    counter += 1
+                    obs_s    = obs_s.to(device='cuda')
+                    target_s = target_s.to(device='cuda')
+                    obs_p    = obs_p.to(device='cuda')
+                    target_p = target_p.to(device='cuda')
+                    
+                    net.zero_grad()
+
+                    if 'attribute' in args.task:
+                        speed_preds, attrib_preds = net(speed=obs_s, pos=obs_p) #[100,16,6]
+                        speed_loss  = mse(speed_preds, target_s)
+                        attrib_loss = mse(attrib_preds, target_a)
+                
+                        loss = speed_loss
+                        loss.backward()
+                        optimizer.step()
+                        
+                        avg_epoch_train_s_loss += float(speed_loss)
+                    else:
+                        speed_preds = net(speed=obs_s, pos=obs_p)[0] #[100,16,6]
+                        speed_loss  = mse(speed_preds, target_s)
+                
+                        loss = speed_loss
+                        loss.backward()
+                        optimizer.step()
+                        
+                        avg_epoch_train_s_loss += float(speed_loss)
+                    
+                avg_epoch_train_s_loss /= counter
+                
+                # VALIDATION
+                counter=0
+                for idx, (obs_s, target_s, obs_p, target_p) in enumerate(val):
+                    counter += 1
+                    obs_s    = obs_s.to(device='cuda')
+                    target_s = target_s.to(device='cuda')
+                    obs_p    = obs_p.to(device='cuda')
+                    target_p = target_p.to(device='cuda')
+                    
+                    with torch.no_grad():
+                        speed_preds = net(speed=obs_s, pos=obs_p)[0]
+                        speed_loss    = mse(speed_preds, target_s)
+                        
+                        avg_epoch_val_s_loss += float(speed_loss)
+                        
+                        preds_p = utils.speed2pos(speed_preds, obs_p, is_3D=True)
+                        ade += float(utils.ADE(preds_p, target_p, is_3D=True))
+                        fde += float(utils.FDE(preds_p, target_p, is_3D=True))
+                        aiou += float(utils.AIOU(preds_p, target_p, is_3D=True))
+                        fiou += float(utils.FIOU(preds_p, target_p, is_3D=True))
+                    
+                avg_epoch_val_s_loss /= counter
+                
+                if args.lr_scheduler:
+                    scheduler.step(avg_epoch_val_s_loss)
+                
+                ade  /= counter
+                fde  /= counter     
+                aiou /= counter 
+                fiou /= counter
+                
+                data.append([epoch, avg_epoch_train_s_loss, avg_epoch_val_s_loss, \
+                            ade, fde, aiou, fiou])
+
+                print('e:', epoch, '| ts: %.6f'% avg_epoch_train_s_loss, 
+                    '| vs: %.6f'% avg_epoch_val_s_loss, 
+                    '| ade: %.4f'% ade, '| fde: %.4f'% fde, 
+                    '| aiou: %.4f'% aiou, '| fiou: %.4f'% fiou, 
+                    '| t:%.4f'%(time.time()-start))
+            
+            df = pd.DataFrame(data, columns =['epoch', 'train_loss', 'val_loss', \
+                        'ade', 'fde', 'aiou', 'fiou'])
     
     if args.save:
         print('\nSaving ...')
@@ -317,14 +404,14 @@ if __name__ == '__main__':
     # select dataset
     if args.dataset == 'jaad':
         args.is_3D = False
-        data_class = 'JAAD'
+    #     # data_class = 'JAAD'
     elif args.dataset == 'jta':
         args.is_3D = True
-        data_class = 'JTA'
+    #     # data_class = 'JTA'
     elif args.dataset == 'nuscenes':
         args.is_3D = True
-        data_class = 'NuScenes'
-    else:
+        # data_class = 'NuScenes'
+    # else:
         print('Unknown dataset entered! Please select from available datasets: jaad, jta, nuscenes...')
 
     # load data
