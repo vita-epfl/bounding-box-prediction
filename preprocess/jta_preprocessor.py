@@ -15,7 +15,7 @@ import argparse
 
 # Arguments
 def parse_args():
-    parser = argparse.ArgumentParser(description='Preprocessing')
+    parser = argparse.ArgumentParser(description='JTA preprocessing')
     
     parser.add_argument('--data_dir', type=str,
                         help='Path to dataset',
@@ -182,7 +182,6 @@ class JTAPreprocessor():
 
         
 if __name__ == '__main__':
-    # path = '/work/vita/JTA_dataset/Original_JTA_dataset'
     args = parse_args()
 
     raw_data = ['train', 'test', 'val']
