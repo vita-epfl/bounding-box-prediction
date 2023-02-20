@@ -104,7 +104,6 @@ class JTA(torch.utils.data.Dataset):
 
                             # check if frames are continuous
                             if utils.check_continuity(obs_frames, skip) or utils.check_continuity(pred_frames, skip):
-                                # print('check continuity')
                                 pass
                             
                             if not occluded:

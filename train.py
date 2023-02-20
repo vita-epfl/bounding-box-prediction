@@ -30,8 +30,26 @@ def parse_args():
                         required=True)
     parser.add_argument('--out_dir', type=str, 
                         help='Path to save output',
-                        required=True)      
-    parser.add_argument('--is_3D', type=bool, default=False) # Set this to true for JTA, Nuscenes              
+                        required=True)  
+    parser.add_argument('--task', type=str, 
+                        help='Task the network is performing, choose between 2D_bounding_box-intention, \
+                            3D_bounding_box, 3D_bounding_box-attribute',
+                        required=True)
+    
+    # data configuration
+    parser.add_argument('--input', type=int,
+                        help='Input sequence length in frames',
+                        required=True)
+    parser.add_argument('--output', type=int, 
+                        help='Output sequence length in frames',
+                        required=True)
+    parser.add_argument('--stride', type=int, 
+                        help='Input and output sequence stride in frames',
+                        required=True)  
+    parser.add_argument('--skip', type=int, default=1)  
+    parser.add_argument('--is_3D', type=bool, default=False) 
+
+    # data loading / saving           
     parser.add_argument('--dtype', type=str, default='train')
     parser.add_argument("--from_file", type=bool, default=False)       
     parser.add_argument('--save', type=bool, default=True)
@@ -39,20 +57,17 @@ def parse_args():
     parser.add_argument('--loader_workers', type=int, default=10)
     parser.add_argument('--loader_shuffle', type=bool, default=True)
     parser.add_argument('--pin_memory', type=bool, default=False)
-    parser.add_argument('--image_resize', type=str, default='[240, 426]')
+
+    # training
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--n_epochs', type=int, default=100)
-    parser.add_argument('--hidden_size', type=int, default=512)
-    parser.add_argument('--hardtanh_limit', type=int, default=100)
-    parser.add_argument('--input', type=int, default=16)
-    parser.add_argument('--output', type=int, default=16)
-    parser.add_argument('--stride', type=int, default=16)
-    parser.add_argument('--skip', type=int, default=1)
-    parser.add_argument('--task', type=str, default='2D_bounding_box-intention')
-    parser.add_argument('--use_scenes', type=bool, default=False)
     parser.add_argument('--lr', type=int, default=1e-5)
     parser.add_argument('--lr_scheduler', type=bool, default=False)
+
+    # network
+    parser.add_argument('--hidden_size', type=int, default=512)
+    parser.add_argument('--hardtanh_limit', type=int, default=100)
 
     args = parser.parse_args()
 

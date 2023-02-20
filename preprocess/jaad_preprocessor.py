@@ -79,15 +79,3 @@ for video in dataset:
         data_to_write.to_csv(os.path.join(data_path, 'processed_annotations', 'val', video+'.csv'), index=False)
     elif video in test_videos:
         data_to_write.to_csv(os.path.join(data_path, 'processed_annotations', 'test', video+'.csv'), index=False)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

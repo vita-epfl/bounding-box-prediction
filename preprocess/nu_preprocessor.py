@@ -6,27 +6,24 @@ Purpose: Preprocessing NuScenes dataset for 3D bounding box prediction.
     pedestrian in each frame of a video
 """
 import os
-# import sys
-import time
-# import math
-# import copy
-# import json
+import sys 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__) ) ) )
+
 import logging
 from collections import defaultdict
 import datetime
 import pandas as pd
 import argparse
-import numpy as np
+import utils 
 
 from nuscenes.nuscenes import NuScenes
-#from nuscenes.utils import splits
-from split import create_splits_scenes
+from nu_split import create_splits_scenes
 
-from sklearn.utils import resample
+# from sklearn.utils import resample
 
-attribute_mapping = {"standing" : [1, 0, 0],
-                    "moving" : [0, 1, 0],
-                    "sitting_lying_down" : [0, 0, 1]
+attribute_mapping = {   "standing" : [1, 0, 0],
+                        "moving" : [0, 1, 0],
+                        "sitting_lying_down" : [0, 0, 1]
                     }
 
 # Arguments
@@ -34,7 +31,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Nuscenes preprocessor...')
     
     parser.add_argument('--data_dir', type=str, help='Path to dataset', required=True)
-    parser.add_argument('--version', type=str, help='Path to dataset', default='v1.0-mini')
+    parser.add_argument('--version', type=str, help='Dataset version', default='v1.0-mini')
+    parser.add_argument('--input', type=int, help='Input size', default=4)
+    parser.add_argument('--output', type=int, help='Output size', default=4)
 
     args = parser.parse_args()
 
@@ -60,24 +59,22 @@ class NuscenesPreprocessor():
                             K = [], attribute = [], label = [], future_label=[])
               }
 
-    def __init__(self, dataset_path, version):
+    def __init__(self, dataset_path, version, input, output):
 
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        
-        # if not os.path.isdir(PREPROCESSED_DATA_DIR):    
-        #     os.mkdir(PREPROCESSED_DATA_DIR)      
+             
         self.dataset_path = dataset_path
         self.version = version
-        self.input = 4
-        self.output = 4
+        self.input = input
+        self.output = output
         self.total = self.input + self.output
         now = datetime.datetime.now()
         now_time = now.strftime("%Y%m%d-%H%M")[2:]
         self.nusc, self.scenes, self.split_train, self.split_val, self.split_test = factory(dataset_path, version)
 
         # Create folder in original dataset
-        self.out_dir = os.path.join(dataset_path, self.version, 'processed_annotations')
+        self.out_dir = os.path.join(dataset_path, f'nu_{self.input}_{self.output}_{self.total}')
         if not os.path.isdir(self.out_dir):    
             os.mkdir(self.out_dir)
 
@@ -173,7 +170,7 @@ class NuscenesPreprocessor():
                                         cnt_samples += 1
 
                                     # check if there are sufficient data to save
-                                    if (len(cam_data[cam]['bbox']) == self.total) and not check_continuity(cam_data[cam]['idx'], 1):
+                                    if (len(cam_data[cam]['bbox']) == self.total) and not utils.check_continuity(cam_data[cam]['idx'], 1):
                                         self.data[phase]['cam_token'].append(cam_data[cam]['cam_token'])
                                         self.data[phase]['ann_token'].append(cam_data[cam]['ann_token'])
                                         self.data[phase]['bounding_box'].append(cam_data[cam]['bbox'][0:self.input])
@@ -198,19 +195,14 @@ class NuscenesPreprocessor():
     
 
     def preprocess(self, data_type):
-        df_train = pd.DataFrame.from_dict(self.data[data_type])
+        df = pd.DataFrame.from_dict(self.data[data_type])
 
         filename = 'nu_{}_{}_{}_{}.csv'.format(data_type, self.input, self.output, self.total)
 
-        if not os.path.isdir(os.path.join(self.out_dir, data_type)):    
-            os.mkdir(os.path.join(self.out_dir, data_type))
+        # if not os.path.isdir(os.path.join(self.out_dir, data_type)):    
+        #     os.mkdir(os.path.join(self.out_dir, data_type))
         
-        # df_val = pd.DataFrame.from_dict(self.data['val'])
-        # df_test = pd.DataFrame.from_dict(self.data['test'])
-        
-        #df_train['attrib_label'] = df_train['attribute'].map(attribute_mapping)
-        #df_val['attrib_label'] = df_val['attribute'].map(attribute_mapping)
-        #df_test['attrib_label'] = df_test['attribute'].map(attribute_mapping)
+        # df['attrib_label'] = df['attribute'].map(attribute_mapping)
         
         # upsampling
         # df = df_train.copy()
@@ -239,51 +231,36 @@ class NuscenesPreprocessor():
         #df_upsampled['class'].value_counts()
         # df_train = df_upsampled.copy()
 
-        df_train.to_csv(os.path.join(self.out_dir, data_type, filename), index=False)
+        df.to_csv(os.path.join(self.out_dir, filename), index=False)
 
-        print("\nPreprocssed {} data saved to {}".format(data_type, os.path.join(self.out_dir, data_type, filename)))
+        print("\nPreprocssed {} data saved to {}".format(data_type, os.path.join(self.out_dir, filename)))
             
             
 def factory(dataset_path, version):
     """Define dataset type and split training and validation"""
-
-    nusc = NuScenes(version=version, dataroot=dataset_path, verbose=True)
+    # Load NuScenes data class
+    nusc = NuScenes(version=version, dataroot=os.path.join(dataset_path,version), verbose=True)
     scenes = nusc.scene
 
+    # Split scenes
     split_scenes = create_splits_scenes()
-    split_train, split_val, split_test = split_scenes['train'], split_scenes['val'], split_scenes['test']
+    if version == 'v1.0-mini':
+        split_train, split_val, split_test = split_scenes['train'], split_scenes['val'], split_scenes['test']
+    else:
+        # Train/val/test split based on 850 fully annotated images from TrainVal NuScenes
+        split_train, split_val, split_test = split_scenes['train_annotated'], split_scenes['val_annotated'], split_scenes['test_annotated']
 
     return nusc, scenes, split_train, split_val, split_test
 
-def select_categories(cat):
-    """
-    Choose the categories to extract annotations from
-    """
-    assert cat in ['person', 'all', 'car', 'cyclist']
-
-    if cat == 'person':
-        categories = ['human.pedestrian']
-    elif cat == 'all':
-        categories = ['human.pedestrian', 'vehicle.bicycle', 'vehicle.motorcycle']
-    elif cat == 'cyclist':
-        categories = ['vehicle.bicycle']
-    elif cat == 'car':
-        categories = ['vehicle']
-    return categories
-
-
-def check_continuity(my_list, skip):
-    '''
-    Checks if there are frames continuously
-    Returns True is there is discontinuity
-    '''
-    return any(a+skip != b for a, b in zip(my_list, my_list[1:]))
 
         
 if __name__ == '__main__':
     args = parse_args()
     raw_data = ['train', 'test', 'val']
-    nu_preprocessor = NuscenesPreprocessor(dataset_path=args.data_dir, version=args.version)
+    nu_preprocessor = NuscenesPreprocessor( dataset_path=args.data_dir, 
+                                            version=args.version, 
+                                            input=args.input,
+                                            output=args.output)
 
     for data_type in raw_data:
         print('Reading {} data...'.format(data_type))
