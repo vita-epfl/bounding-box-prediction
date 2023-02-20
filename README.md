@@ -4,8 +4,7 @@
 This is the official code for the papers ["Pedestrian Intention Prediction: A Multi-task Perspective"](https://arxiv.org/abs/2010.10270), accepted and published in [hEART 2021](http://www.heart-web.org/) (the 9th Symposium of the European Association for Research in Transportation) and ["Pedestrian 3D Bounding Box Prediction"](https://arxiv.org/abs/2010.10270), accepted and published in [hEART 2022](http://www.heart-web.org/) (the 10th Symposium of the European Association for Research in Transportation).
 
 ### _Absracts_:
-> __Pedestrian Intention Prediction: A Multi-task Perspective__
-
+> __Pedestrian Intention Prediction: A Multi-task Perspective__<br /> 
 > In order to be globally deployed, autonomous cars must guarantee the safety of pedestrians. This is the reason why forecasting pedestrians' intentions sufficiently in advance is one of the most critical and challenging tasks for autonomous vehicles.
 > This work tries to solve this problem by jointly predicting the intention and visual states of pedestrians.
 > In terms of visual states, whereas previous work focused on x-y coordinates, we will also predict the size and indeed the whole bounding box of the pedestrian.
@@ -13,8 +12,7 @@ This is the official code for the papers ["Pedestrian Intention Prediction: A Mu
 > Experiments on the JAAD dataset show the superiority of the performance of our method compared to previous works for intention prediction.
 > Also, although its simple architecture (more than 2 times faster), the performance of the bounding box prediction is comparable to the ones yielded by much more complex architectures.
 
-> __Pedestrian 3d Bounding Box Prediction__
-
+> __Pedestrian 3d Bounding Box Prediction__<br /> 
 > Safety is still the main issue of autonomous driving, and in order to be globally deployed, they need to predict pedestrians’ motions sufficiently in advance. 
 > While there is a lot of research on coarse-grained (human center prediction) and fine-grained predictions (human body keypoints prediction), we focus on 3D bounding boxes, which are reasonable estimates of humans without modeling complex motion details for autonomous vehicles. 
 > This gives the flexibility to predict in longer horizons in real-world settings. We suggest this new problem and present a simple yet effective model for pedestrians’ 3D bounding box prediction. 
