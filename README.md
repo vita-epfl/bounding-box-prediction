@@ -26,7 +26,7 @@ This is the official code for the papers ["Pedestrian Intention Prediction: A Mu
   * [Proposed Method](#proposed-method)
   * [Results](#results)
   * [Installation](#installation)
-  * [Dataset](#datasets)
+  * [Datasets](#datasets)
   * [Training/Testing](#training-testing)
   * [Tested Environments](#tested-environments)
   
@@ -94,12 +94,12 @@ pip install -r requirements.txt
 ## Datasets
 ------------
 Currently supporting the following datasets:
-> 2D: [JAAD] (https://data.nvision2.eecs.yorku.ca/JAAD_dataset/)
-> 3D: [JTA](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=25), [NuScenes](https://www.nuscenes.org/nuscenes)
+* __2D__: [JAAD](https://data.nvision2.eecs.yorku.ca/JAAD_dataset/)
+* __3D__: [JTA](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=25), [NuScenes](https://www.nuscenes.org/nuscenes)
 
-The network __only__ takes bounding box annotations, thus videos and images are only needed for visualization. 
+The network _only_ takes bounding box annotations, thus videos and images are only needed for visualization. 
 
-For JAAD and JTA datasets, the preprocessing script first saves files containing all available samples to a ```preprocessed_annotations``` folder (by default created in the dataset's home directory). These files are then used during dataloading to allow for creation of data with different input/output/stride values. \n
+For JAAD and JTA datasets, the preprocessing script first saves files containing all available samples to a ```preprocessed_annotations``` folder (by default created in the dataset's home directory). These files are then used during dataloading to allow for creation of data with different input/output/stride values.
 
 However, for nuScenes the final `.csv` data files are generated directly so there will be no `preprocessed_annotations` folder.
 
