@@ -69,7 +69,7 @@ Example of outputs
 ![Example of outputs](Images/test_seq_478_frame177_idx17500.gif)
 *3D synthetic JTA dataset*
 
-![Example of outputs](Images/test_seq_478_frame177_idx17500.gif)
+![Example of outputs](Images/test_scene-0593_frame0_idx35.gif)
 *3D real world NuScenes dataset*
 
 
