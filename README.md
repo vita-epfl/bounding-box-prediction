@@ -5,6 +5,7 @@ This is the official code for the papers ["Pedestrian Intention Prediction: A Mu
 
 ### _Absracts_:
 > __Pedestrian Intention Prediction: A Multi-task Perspective__
+
 > In order to be globally deployed, autonomous cars must guarantee the safety of pedestrians. This is the reason why forecasting pedestrians' intentions sufficiently in advance is one of the most critical and challenging tasks for autonomous vehicles.
 > This work tries to solve this problem by jointly predicting the intention and visual states of pedestrians.
 > In terms of visual states, whereas previous work focused on x-y coordinates, we will also predict the size and indeed the whole bounding box of the pedestrian.
@@ -13,11 +14,13 @@ This is the official code for the papers ["Pedestrian Intention Prediction: A Mu
 > Also, although its simple architecture (more than 2 times faster), the performance of the bounding box prediction is comparable to the ones yielded by much more complex architectures.
 
 > __Pedestrian 3d Bounding Box Prediction__
+
 > Safety is still the main issue of autonomous driving, and in order to be globally deployed, they need to predict pedestrians’ motions sufficiently in advance. 
 > While there is a lot of research on coarse-grained (human center prediction) and fine-grained predictions (human body keypoints prediction), we focus on 3D bounding boxes, which are reasonable estimates of humans without modeling complex motion details for autonomous vehicles. 
 > This gives the flexibility to predict in longer horizons in real-world settings. We suggest this new problem and present a simple yet effective model for pedestrians’ 3D bounding box prediction. 
 > This method follows an encoder-decoder architecture based on recurrent neural networks, and our experiments show its effectiveness in both the synthetic (JTA) and real-world (NuScenes) datasets. 
 > The learned representation has useful information to enhance the performance of other tasks, such as action anticipation.
+
 
 ## Contents
 ------------
@@ -25,42 +28,28 @@ This is the official code for the papers ["Pedestrian Intention Prediction: A Mu
   * [Proposed Method](#proposed-method)
   * [Results](#results)
   * [Installation](#installation)
-  * [Dataset](#dataset)
+  * [Dataset](#datasets)
   * [Training/Testing](#training-testing)
   * [Tested Environments](#tested-environments)
   
 
 ## Repository structure
-```
-|─── 3D                                        : Project repository
-      |─── exploration                         : Jupyter notebooks for data exploration and visualization
-            |─── JTA_exploration.ipynb   
-            |─── NuScenes_exploration.ipynb
-      |─── preprocess                          : Scripts for preprocessing
+------------
+    |─── datasets                            : Scripts for loading different datasets
+            |─── jaad.py
+            |─── jta.py
+            |─── nuscenes.py
+    |─── preprocess                          : Scripts for preprocessing
+            |─── jaad_preprocessor.py
             |─── jta_preprocessor.py
             |─── nu_preprocessor.py
-            |─── split.py
-      |─── utils                               : Scripts containing necessary calculations
-            |─── utils.py  
-            |─── nuscenes.py
-      |─── visualization                       : Scripts for visualizing the results and making GIFs
-            |─── visualize.py
-      |─── Dataloader.py                       : Script for loading preprocessed data
-      |─── network.py                          : Script containing network 
-      |─── network_pos_decoder.py              : Script containing network variation that has a position decoder (not used)
-      |─── test.py                             : Script for testing
-      |─── train.py                            : Script for training 
-```
-
-## Repository structure:
-------------
-    ├── 2D                              : Project repository
-            ├── prepare_data.py         : Script for processing raw JAAD data.
-            ├── train.py                : Script for training PV-LSTM.  
-            ├── test.py                 : Script for testing PV-LSTM.  
-            ├── DataLoader.py           : Script for data pre-processing and loader. 
-            ├── networks.py             : Script containing the implementation of the network.
-            ├── utils.py                : Script containing necessary math and transformation functions.
+            |─── nu_split.py     
+    |─── visualization                       : Scripts for visualizing the results  
+            |─── visualize.py                       
+    ├── train.py                : Script for training PV-LSTM  
+    ├── test.py                 : Script for testing PV-LSTM  
+    ├── networks.py             : Script containing the implementation of the network
+    ├── utils.py                : Script containing necessary math and transformation functions
 
        
 ### Proposed method
@@ -86,7 +75,7 @@ Example of outputs
 *3D real world NuScenes dataset*
 
 
-## Installation:
+## Installation
 ------------
 Start by cloning this repositiory:
 ```
@@ -103,7 +92,9 @@ And install the dependencies:
 pip install -r requirements.txt
 ```
 
-## Datasets:
+
+## Datasets
+------------
 Currently supporting the following datasets:
 > 2D: [JAAD] (https://data.nvision2.eecs.yorku.ca/JAAD_dataset/)
 > 3D: [JTA](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=25), [NuScenes](https://www.nuscenes.org/nuscenes)
@@ -115,52 +106,54 @@ For JAAD and JTA datasets, the preprocessing script first saves files containing
 However, for nuScenes the final `.csv` data files are generated directly so there will be no `preprocessed_annotations` folder.
 
 ### JAAD
-  * Clone repo and copy over preprocessing file.
+  Clone repo and copy over preprocessing file
   ```
   git clone https://github.com/ykotseruba/JAAD
   cd JAAD
   cp jaad_data.py ./bounding-box-prediction/preprocess/
   ```
-  * Run the preprocessor script, train/val/test ratios must be in [0,1] and their sum should equal 1. 
+  Run the preprocessor script, train/val/test ratios must be in [0,1] and their sum should equal 1
   ``` 
   python3 preprocess/jaad_preprocessor.py --data_dir=/path/to/JAAD --train_ratio=0.7 --val_ratio=0.2 --test_ratio=0.1 
   ```
-  * For visualization, download the [JAAD clips](http://data.nvision2.eecs.yorku.ca/JAAD_dataset/) (UNRESIZED) and unzip them in the `videos` folder. Then, run the script `split_clips_to_frames.sh` to convert the JAAD videos into frames. _NOTE:_ Each frame will be placed in a folder under the `scene` folder. Note that this takes 169G of space.
+  For visualization, download the [JAAD clips](http://data.nvision2.eecs.yorku.ca/JAAD_dataset/) (UNRESIZED) and unzip them in the `videos` folder. Then, run the script `split_clips_to_frames.sh` to convert the JAAD videos into frames. _NOTE:_ Each frame will be placed in a folder under the `scene` folder. Note that this takes 169G of space.
+
 
 ### JTA
-  * Clone the repo.
+  Clone the repo and preprocess the dataset according to original train/val/test ratios.
   ```
   git clone https://github.com/fabbrimatteo/JTA-Dataset
-  ``` 
-  * Preprocess the dataset according to original train/val/test ratios.
-  ```
   python3 preprocess/jta_preprocessor.py --data_dir=/path/to/JTA 
   ```
-  * For visualization, fownload the full dataset following instructions from the official repository.
+  For visualization, fownload the full dataset following instructions from the official repository.
+
 
 ### nuScenes
-  * Clone repo and copy over required folder for preprocessing.
+  Clone repo and copy over required folder for preprocessing.
   ```
   git clone https://github.com/nutonomy/nuscenes-devkit
   cd nuscenes-devkit/python-sdk
   cp -r nuscenes/ ../bounding-box-prediction/preprocess/
   ```
-  * Download the _nuScenes_ dataset from the [official website](https://www.nuscenes.org/download) under the heading _Full dataset (v1.0)_  The full _Trainval_ dataset was used, but _Mini_ dataset is great for quick tests. _NOTE:_ the Test dataset was not used because there are no annotations. 
-  * Preprocess the dataset using custom train/val/test split specified in `split.py`. The version should match the type of dataset used (eg. v1.0-mini). The input and output sizes default to 4 unless otherwise specified.
+  Download the _nuScenes_ dataset from the [official website](https://www.nuscenes.org/download) under the heading _Full dataset (v1.0)_  The full _Trainval_ dataset was used, but _Mini_ dataset is great for quick tests. _NOTE:_ the Test dataset was not used because there are no annotations. 
+  
+  Preprocess the dataset using custom train/val/test split specified in `split.py`. The version should match the type of dataset used (eg. v1.0-mini). The input and output sizes default to 4 unless otherwise specified.
   ```
   python preprocess/nu_preprocessor.py --data_dir=/path/to/nuscenes --version=v1.0-mini --input=4 --output=4
   ```
 
 
 
-## Training/Testing:
+## Training/Testing
+------------
 ### CLI
 ```
 required arguments:
   --data_dir        Path to dataset
   --dataset         Dataset name
   --out_dir         Path to store outputs (model checkpoints, logs)
-  --task            What task the network is performing, choose between '2D_bounding_box-intention', '3D_bounding_box', '3D_bounding_box-attribute' 
+  --task            What task the network is performing, choose between '2D_bounding_box-intention', 
+  '3D_bounding_box', '3D_bounding_box-attribute' 
   --input           Sequence input length in frames 
   --output          Sequence output length in frames
   --stride          Sequence stride in frames 
@@ -200,14 +193,15 @@ Test the network by running the command:
 python3 test.py --data_dir=/path/to/JAAD/processed_annotations --dataset=jaad --out_dir=/path/to/output --task='2D_bounding_box-intention' 
 ```
 
-## Tested Environments:
+
+## Tested Environments
 ------------
   * Ubuntu 18.04, CUDA 10.1
   * Windows 10, CUDA 10.1
 
 
 
-### Citation
+### Citations
 
 ```
 @inproceedings{bouhsain2020pedestrian,
